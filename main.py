@@ -2,10 +2,7 @@ import random
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import skimage.io
-import skimage.viewer
-import skimage.draw
-import ipympl
+
 
 
 class Point:
@@ -133,7 +130,7 @@ def pointsToValueArray(points):
         py.append(ppt.y)
     return px, py
 
-'''
+
 def beautifyPlot():
     axis[0, 0].set_title("Chmury punktow")
     axis[0, 0].set_xlim(-1000, 1000)
@@ -152,36 +149,32 @@ def beautifyPlot():
     axis[1, 0].set_ylim(-1000, 1000)
     axis[1, 0].get_xaxis().set_visible(False)
     axis[1, 0].get_yaxis().set_visible(False)
-'''
-
-
-def quadTree():
 
 
 
 if __name__ == '__main__':
     plt.figure(1)
     clouds = []
-    #figure, axis = plt.subplots(2, 2, constrained_layout=True)
+    figure, axis = plt.subplots(2, 2, constrained_layout=True)
     for i in range(4):
         newCloud = pointCloud(Point((i-2)*450+150, random.randrange(-750, 750)), 240)
         clouds.append(newCloud)
         col = np.random.rand(3,)
-        #for pt in clouds[i].points:
-            #axis[0, 0].plot(pt.x, pt.y, '.', color=col)
+        for pt in clouds[i].points:
+            axis[0, 0].plot(pt.x, pt.y, '.', color=col)
         hull = graham(clouds[i])
 
         x, y = pointsToValueArray(hull)
 
-        #axis[0, 1].fill(x, y, facecolor='none', edgecolor='blue')
+        axis[0, 1].fill(x, y, facecolor='none', edgecolor='blue')
 
-        plt.fill(x, y, facecolor='black', edgecolor='none')
+        axis[1, 0].fill(x, y, facecolor='orange', edgecolor='none')
 
         #hull.clear()
         #x.clear()
         #y.clear()
 
-    #beautifyPlot()
+    beautifyPlot()
     plt.axis('off')
     plt.savefig('shapes.png', bbox_inches='tight', dpi=100)
     plt.show()
