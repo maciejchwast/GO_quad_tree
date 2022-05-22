@@ -2,11 +2,8 @@ import random
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import skimage.io
-import skimage.viewer
-import skimage.draw
-import ipympl
-
+import sys
+from PIL import Image, ImageDraw
 
 class Point:
 
@@ -155,10 +152,6 @@ def beautifyPlot():
 '''
 
 
-def quadTree():
-
-
-
 if __name__ == '__main__':
     plt.figure(1)
     clouds = []
@@ -176,12 +169,12 @@ if __name__ == '__main__':
         #axis[0, 1].fill(x, y, facecolor='none', edgecolor='blue')
 
         plt.fill(x, y, facecolor='black', edgecolor='none')
-
         #hull.clear()
         #x.clear()
         #y.clear()
-
-    #beautifyPlot()
+    plt.xlim(-1000, 1000)
+    plt.ylim(-1000, 1000)
     plt.axis('off')
-    plt.savefig('shapes.png', bbox_inches='tight', dpi=100)
+    plt.savefig('shapes.png', dpi=100)
     plt.show()
+    #beautifyPlot()
