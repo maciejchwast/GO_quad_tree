@@ -14,6 +14,9 @@ class Point:
     def print(self):
         return "X = " + str(round(self.x, 2)) + ", Y = " + str(round(self.y, 2))
 
+    def toInt(self):
+        self.x = int(self.x)
+        self.y = int(self.y)
 
 class Straight:
 
@@ -150,7 +153,25 @@ def beautifyPlot():
     axis[1, 0].get_xaxis().set_visible(False)
     axis[1, 0].get_yaxis().set_visible(False)
 '''
+sys.setrecursionlimit(10000)
 
+def quadtreePlot(img, p1: Point, p2: Point):
+    p1.toInt()
+    p2.toInt()
+    draw = ImageDraw.Draw(img)
+    px = img.load()
+    try:
+        for i in range(p1.x, p2.x):
+            for j in range(p1.y, p2.y):
+                if px[i, j] < (25, 25, 25, 25):
+                    draw.line([p2.x / 2, p1.y, p2.x / 2, p2.y], fill='red')
+                    draw.line([p1.x, p2.y / 2, p2.x, p2.y / 2], fill='red')
+                    quadtreePlot(img, p1, Point(p2.x / 2, p2.y / 2))
+                    quadtreePlot(img, Point(p2.x / 2, p1.y), Point(p2.x, p2.y / 2))
+                    quadtreePlot(img, Point(p1.x, p2.y / 2), Point(p2.y / 2, p2.y))
+                    quadtreePlot(img, Point(p2.x / 2, p2.y / 2), p2)
+    finally:
+        img.save('result.png')
 
 if __name__ == '__main__':
     plt.figure(1)
@@ -175,6 +196,10 @@ if __name__ == '__main__':
     plt.xlim(-1000, 1000)
     plt.ylim(-1000, 1000)
     plt.axis('off')
-    plt.savefig('shapes.png', dpi=100)
+    plt.savefig('shapes.png', dpi=20)
     plt.show()
+
+    with Image.open('shapes.png') as im:
+        quadtreePlot(im, Point(0, 0), Point(im.width, im.height))
+        #test(im)
     #beautifyPlot()
