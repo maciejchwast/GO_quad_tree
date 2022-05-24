@@ -18,6 +18,15 @@ class Point:
         self.x = int(self.x)
         self.y = int(self.y)
 
+    def half(self):
+        return Point(self.x/2, self.y/2)
+
+    def invX(self):
+        return Point(-self.x, self.y)
+
+    def invY(self):
+        return Point(self.x, -self.y)
+
 class Straight:
 
     def print(self):
@@ -153,53 +162,82 @@ def beautifyPlot():
     axis[1, 0].get_xaxis().set_visible(False)
     axis[1, 0].get_yaxis().set_visible(False)
 '''
-sys.setrecursionlimit(10000)
 
-def quadtreePlot(img, p1: Point, p2: Point):
+def quadtree_plot(img, p1: Point, p2: Point):
     p1.toInt()
     p2.toInt()
-    draw = ImageDraw.Draw(img)
+    for i in range(p1.x, p2.x, 4):
+        for j in range(p1.y, p2.y, 4):
+            if abs(p1.x - p2.x) < 10 or abs(p1.y - p2.y) < 10:
+                quadtree_plot(img, Point(0, 0), Point(im.width / 2, img.height / 2))
+            if black_pixel_inside(img, p1, Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)):
+                draw_cross(img, p1, p2)
+                quadtree_plot(img, p1, Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2))
+            if black_pixel_inside(img, Point(p2.x / 2 + p1.x, p1.y), Point(p2.x, (p2.y + p1.y) / 2)):
+                draw_cross(img, p1, p2)
+                quadtree_plot(img, Point(p2.x / 2 + p1.x, p1.y), Point(p2.x, (p2.y + p1.y) / 2))
+            if black_pixel_inside(img, Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2), p2):
+                draw_cross(img, p1, p2)
+                quadtree_plot(img, Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2), p2)
+            if black_pixel_inside(img, Point(p1.x, (p2.y + p1.y) / 2), Point(p2.x / 2 + p1.x, p2.y)):
+                draw_cross(img, p1, p2)
+                quadtree_plot(img, Point(p1.x, (p2.y + p1.y) / 2), Point(p2.x / 2 + p1.x, p2.y))
+
+
+def black_pixel_inside(img, p1: Point, p2: Point):
+    p1.toInt()
+    p2.toInt()
     px = img.load()
-    try:
-        for i in range(p1.x, p2.x):
-            for j in range(p1.y, p2.y):
-                if px[i, j] < (25, 25, 25, 25):
-                    draw.line([p2.x / 2, p1.y, p2.x / 2, p2.y], fill='red')
-                    draw.line([p1.x, p2.y / 2, p2.x, p2.y / 2], fill='red')
-                    quadtreePlot(img, p1, Point(p2.x / 2, p2.y / 2))
-                    quadtreePlot(img, Point(p2.x / 2, p1.y), Point(p2.x, p2.y / 2))
-                    quadtreePlot(img, Point(p1.x, p2.y / 2), Point(p2.y / 2, p2.y))
-                    quadtreePlot(img, Point(p2.x / 2, p2.y / 2), p2)
-    finally:
-        img.save('result.png')
+    returnVal = False
+    for i in range(p1.x, p2.x, 2):
+        for j in range(p1.y, p2.y, 2):
+            if px[i, j] == (0, 0, 0, 255):
+                if px[i, j] == (255, 0, 0, 255):
+                    break
+                returnVal = True
+        if px[i, j] == (255, 0, 0, 255):
+            break
+    return returnVal
+
+
+def draw_cross(img, p1: Point, p2: Point):
+    draw = ImageDraw.Draw(img)
+    draw.line([(p1.x+p2.x)/2, p1.y, (p1.x+p2.x)/2, p2.y], fill='red')
+    draw.line([p1.x, (p1.y+p2.y)/2, p2.x, (p1.y+p2.y)/2], fill='red')
+    img.save('result.png')
+    print("Punkt ", p1.x, p1.y," i punkt ", p2.x, p2.y)
+
 
 if __name__ == '__main__':
-    plt.figure(1)
-    clouds = []
-    #figure, axis = plt.subplots(2, 2, constrained_layout=True)
-    for i in range(4):
-        newCloud = pointCloud(Point((i-2)*450+150, random.randrange(-750, 750)), 240)
-        clouds.append(newCloud)
-        col = np.random.rand(3,)
-        #for pt in clouds[i].points:
-            #axis[0, 0].plot(pt.x, pt.y, '.', color=col)
-        hull = graham(clouds[i])
+    #plt.figure(1)
+    #clouds = []
+    ##figure, axis = plt.subplots(2, 2, constrained_layout=True)
+    #for i in range(4):
+    #    newCloud = pointCloud(Point((i-2)*450+150, random.randrange(-750, 750)), 240)
+    #    clouds.append(newCloud)
+    #    col = np.random.rand(3,)
+    #    #for pt in clouds[i].points:
+    #        #axis[0, 0].plot(pt.x, pt.y, '.', color=col)
+    #    hull = graham(clouds[i])
+    #
+    #    x, y = pointsToValueArray(hull)
+    #
+    #    #axis[0, 1].fill(x, y, facecolor='none', edgecolor='blue')
+    #
+    #    plt.fill(x, y, facecolor='black', edgecolor='none')
+    #    #hull.clear()
+    #    #x.clear()
+    #    #y.clear()
+    #plt.xlim(-1000, 1000)
+    #plt.ylim(-1000, 1000)
+    #plt.axis('off')
+    #plt.savefig('shapes.png', dpi=80)
+    #plt.show()
 
-        x, y = pointsToValueArray(hull)
-
-        #axis[0, 1].fill(x, y, facecolor='none', edgecolor='blue')
-
-        plt.fill(x, y, facecolor='black', edgecolor='none')
-        #hull.clear()
-        #x.clear()
-        #y.clear()
-    plt.xlim(-1000, 1000)
-    plt.ylim(-1000, 1000)
-    plt.axis('off')
-    plt.savefig('shapes.png', dpi=20)
-    plt.show()
-
+    sys.setrecursionlimit(5000)
+    recursionlvl = 0
     with Image.open('shapes.png') as im:
-        quadtreePlot(im, Point(0, 0), Point(im.width, im.height))
+        quadtree_plot(im, Point(0, 0), Point(im.width, im.height))
+        #quadtreePlot(im, Point(0, 0), Point(im.width, im.height))
         #test(im)
     #beautifyPlot()
